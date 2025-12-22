@@ -9,3 +9,4 @@ wheels/
 # Virtual environments
 .venv
 fundamentos/index_dir/**
+.env
