@@ -10,3 +10,4 @@ wheels/
 .venv
 fundamentos/index_dir/**
 .env
+.DS_Store
