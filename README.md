@@ -33,6 +33,10 @@ curso-ia/
 │   ├── create_collection.py           # Criação de coleção Qdrant com vetores híbridos
 │   ├── ingestion.py                   # Ingestion de filings SEC (10-K e 10-Q)
 │   ├── test-query.py                  # Query com busca híbrida e RRF fusion
+│   ├── app/                           # API FastAPI para processamento de eventos
+│   │   ├── main.py                    # Aplicação principal FastAPI
+│   │   ├── router.py                  # Orquestrador de rotas
+│   │   └── endpoint.py                # Implementação de endpoints
 │   ├── utils/
 │   │   ├── edgar_client.py            # Cliente para fetching de EDGAR filings
 │   │   └── semantic_chunker.py        # Chunking semântico com HDBSCAN
@@ -92,19 +96,38 @@ git clone <repository-url>
 cd curso-ia
 ```
 
-2. **Crie um ambiente virtual (opcional)**
+2. **Crie e ative um ambiente virtual**
+
+**Opção A: Usando `uv` (recomendado)**
 ```bash
+# Criar ambiente virtual com uv
+uv venv
+
+# Ativar ambiente virtual
+source .venv/bin/activate  # macOS/Linux
+# ou no Windows: .venv\Scripts\activate
+```
+
+**Opção B: Usando Python nativo**
+```bash
+# Criar ambiente virtual
 python -m venv .venv
-source .venv/bin/activate  # No Windows: .venv\Scripts\activate
+
+# Ativar ambiente virtual
+source .venv/bin/activate  # macOS/Linux
+# ou no Windows: .venv\Scripts\activate
 ```
 
 3. **Instale as dependências**
-```bash
-# Usando pip
-pip install -e .
 
-# Ou usando uv (mais rápido)
-uv install
+**Com `uv` (mais rápido)**
+```bash
+uv sync
+```
+
+**Com pip**
+```bash
+pip install -e .
 ```
 
 4. **Configure as variáveis de ambiente**
@@ -117,6 +140,23 @@ cp .env.example .env
 - `GROQ_API_KEY` - Chave da API Groq
 - `OPENAI_API_KEY` - Chave da API OpenAI
 - `GOOGLE_API_KEY` - Chave da API Google
+
+### Verificar Ativação do Ambiente
+
+```bash
+# Se venv está ativado, você verá (.venv) no prompt
+$ (.venv) python --version
+Python 3.12.x
+
+# Ou use
+which python  # macOS/Linux
+# deve apontar para: /path/to/projeto/.venv/bin/python
+```
+
+### Desativar Ambiente Virtual
+```bash
+deactivate
+```
 
 ## 📚 Módulos Principais
 
@@ -379,6 +419,45 @@ Demonstra busca com RRF Fusion:
 - Sparse BM25 search
 - ColBERT late interaction
 - Combinação com Reciprocal Rank Fusion
+
+### 5. **API FastAPI para Processamento de Eventos**
+```bash
+cd projeto/app
+uv run uvicorn main:app --reload --port 8001
+```
+
+Acesse:
+- **API**: http://127.0.0.1:8001/events/
+- **Documentação**: http://127.0.0.1:8001/docs (Swagger UI)
+- **ReDoc**: http://127.0.0.1:8001/redoc
+
+#### Exemplo de cURL
+```bash
+curl -X POST http://127.0.0.1:8001/events/ \
+  -H "Content-Type: application/json" \
+  -d '{"event_id":"123","event_type":"user_signup","event_data":{"name":"João"}}'
+```
+
+#### Arquitetura da API
+```
+main.py (entrada)
+    ↓
+    └─→ app = FastAPI()
+        app.include_router(process_router)
+            ↓
+        router.py (orquestrador)
+            ↓
+            └─→ router.include_router(endpoint.router, prefix="/events")
+                ↓
+            endpoint.py (implementação)
+                ↓
+                └─→ POST /events/ → handle_event()
+```
+
+**Estrutura de Arquivos:**
+- `main.py`: Aplicação principal, registra routers
+- `router.py`: Orquestra rotas, agrupa endpoints
+- `endpoint.py`: Define schemas (Pydantic) e implementa endpoints
 
 ## � Conceitos Principais
 
