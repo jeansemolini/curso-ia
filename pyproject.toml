@@ -12,6 +12,7 @@ dependencies = [
     "groq>=1.0.0",
     "hdbscan>=0.8.41",
     "langextract>=1.1.1",
+    "mem0ai",
     "nltk>=3.9.2",
     "numpay>=0.0.8",
     "openai>=2.6.1",
@@ -23,9 +24,13 @@ dependencies = [
     "sentence-transformers>=5.2.0",
     "uvicorn>=0.40.0",
     "whoosh>=2.7.4",
+    "yfinance>=1.0",
 ]
 
 [dependency-groups]
 dev = [
     "ipykernel>=7.1.0",
 ]
+
+[tool.uv.sources]
+mem0ai = { git = "https://github.com/mem0ai/mem0.git" }
